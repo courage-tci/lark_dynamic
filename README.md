@@ -53,6 +53,10 @@ number: INTEGER -> integer | FLOAT -> float
 
 # Getting started
 
+Install with:
+
+`python -m pip install lark-dynamic`
+
 To create a grammar, you need to create `Grammar` object:
 ```python
 from lark_dynamic import * # it is recommended to create grammar in a separate file, so * import is fine
