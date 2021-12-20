@@ -181,7 +181,7 @@ hello: "Hello" "World"
 
 In most cases you can just use a string. Explicit `Literal(...)` is needed to support `|` (see [Combinators/Option](#option-usage-rules))
 
-### Using `i` flag:
+### Using `i` flag
 
 ```python
 g.hello = Literal("Hello").i, Literal("World").i
@@ -275,11 +275,11 @@ g.hello = "Hello", Maybe(","), (Literal("World") | "dlroW", ), Some("!") # note 
 
 **`|` priority in Lark is higher than in Python:**
 
-`Maybe(","), Option("World", "dlroW"), Maybe("!")` 
-yields
-`(",")? "World" | "dlroW" ("!")?` 
-which, in turn, is equal to 
-`(","? "World") | ("dlroW" "!"?)`
+`Maybe(","), Option("World", "dlroW"), Maybe("!")`    
+yields    
+`(",")? "World" | "dlroW" ("!")?`    
+which, in turn, is equal to    
+`(","? "World") | ("dlroW" "!"?)`    
 
 You should wrap option with any other combinator (e.g. `Group()` or tuple. Remember that `(x)` is not a tuple) or just use `OptionG`.    
 The reason why default `Option` doesn't do this is that wrapping top-level option in parens would break alias creation.
@@ -301,7 +301,7 @@ yields:
 hello: "Hello" ((",")? "World") (("!")*)
 ```
 
-Can also be written as `(...)` (as a tuple, basically), but be aware of [`|` usage rules](#option-usage-rules)
+Can also be written as `(...)` (as a tuple, basically), but be aware of [`|` usage rules](#option-usage-rules)    
 `Some`, `Many` and `Maybe` also will render in parenthesis by default to avoid combinator collision (e.g. to avoid rendering `(("!")+)?` as `"!"+?` which is invalid).
 
 ### SomeSeparated and ManySeparated
