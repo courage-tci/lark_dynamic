@@ -369,6 +369,11 @@ yields:
 hello: "Hello" ((",")? "World") ("!")*
 ```
 
+### Empty
+
+Sometimes (when using Variable) you'll need to render nothing.    
+It can be achieved with `Prerendered("")`, or its alias, `Empty`
+
 ## Modifiers
 
 Rule and terminal modifiers (such as `?` and `!`) can be used with `Modifier` class (**works only on top level of rule/terminal**):

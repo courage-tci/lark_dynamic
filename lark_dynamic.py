@@ -1,8 +1,6 @@
 from typing import List, Union
-from time import time
 
-Renderable = Union[str, "Token"]
-
+Renderable = Union[str, list, tuple, "Token"]
 
 def add_tab(text):
     return ("\n" + text).replace("\n", "\n    ") + "\n" if text else ""
