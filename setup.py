@@ -21,7 +21,7 @@ with open("README.md") as file:
     long_description = file.read()
 
 setup(
-    name="lark_dynamic",
+    name=About.title,
     version=About.version,
     author=About.author,
     author_email=About.author_email,
