@@ -351,19 +351,18 @@ class Repeat(Token):
 
 
 class Literal(Token):
-    def __init__(self, string: str, case_insensitive=False):
+    def __init__(self, string: str, flags=""):
         self.string = string
-        self.case_insensitive = case_insensitive
+        self.flags = flags
 
     def render(self, context):
         string = self.string.replace('"', '\\"')
         yield f'"{string}"'
-        if self.case_insensitive:
-            yield "i"
+        if self.flags:
+            yield self.flags
 
-    @property
-    def i(self):
-        return Literal(self.string, True)
+    def __getattr__(self, attr):
+        return Literal(self.string, self.flags, attr)
 
     def repr_children(self):
         return "".join(self.render({}))

@@ -185,14 +185,14 @@ hello: "Hello" "World"
 
 In most cases you can just use a string. Explicit `Literal(...)` is needed to support `|` (see [Combinators/Option](#option-usage-rules))
 
-### Using `i` flag
+### Using regexp flags on Literal
 
 ```python
-g.hello = Literal("Hello").i, Literal("World").i
+g.hello = Literal("Hello").si, Literal("World").i
 ```
 yields:
 ```
-hello: "Hello"i "World"i
+hello: "Hello"si "World"i
 ```
 
 ## Combinators

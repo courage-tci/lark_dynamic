@@ -10,7 +10,7 @@ class About:
 
     title = "lark_dynamic"
     description = "Dynamic grammar generator for Lark parsing toolkit"
-    version = "1.0.2"
+    version = "1.0.3"
     author = "evtn"
     author_email = "courage@evtn.ru"
     license = "MIT"
