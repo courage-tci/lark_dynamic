@@ -20,11 +20,12 @@ class Grammar:
         self.__terminals = {}
         self.__directives = []
         self.__templates = {}
+        self.__wrapper = GrammarWrapper(self)
 
     def generate(self, **context):
-        return "".join(self.iter(context)).strip()
+        return "".join(self.build_grammar(context)).strip()
 
-    def iter(self, context):
+    def build_grammar(self, context):
         for terminal in self.__terminals.values():
             yield from terminal.render(context)
             yield "\n"
@@ -41,17 +42,16 @@ class Grammar:
             yield "\n"
         yield "\n"
 
-    def make_rule(self, name, tokens, modifier="", priority=1):
+    def make_rule(self, name, tokens, modifier="", priority=1, replace=False):
         if not is_rule(name):
             raise ValueError(
                 f"Invalid rule name: '{name}'. Rule names must only contain chars [a-z0-9_] and cannot start with a digit"
             )
-        if name in self.__rules:
+        if name in self.__rules and not replace:
             raise NameError(f"Rule '{name}' already exists")
         if isinstance(tokens, Modifier):
             tokens, modifier = tokens.tokens, tokens.type
-        if not isinstance(tokens, (tuple, list)):
-            tokens = (tokens,)
+
         ruledef = RuleDef(name, tokens, modifier, priority)
         self.__rules[name] = ruledef
         return ruledef
@@ -66,9 +66,6 @@ class Grammar:
 
         if isinstance(tokens, Modifier):
             tokens, modifier = tokens.tokens, tokens.type
-
-        if not isinstance(tokens, (tuple, list)):
-            tokens = (tokens,)
 
         termdef = TerminalDef(name, tokens, modifier, priority)
         self.__terminals[name] = termdef
@@ -113,6 +110,51 @@ class Grammar:
                 *[repr(directive) for directive in self.__directives],
             ]
         )
+
+    def use_wrapper(self):
+        return self.__wrapper
+
+
+class GrammarWrapper:
+    def __init__(self, grammar):
+        self.grammar = grammar
+
+    def get_def(self, key):
+        return (
+            self.rules.get(key) 
+            or self.terminals.get(key) 
+            or self.templates.get(key)
+        )
+
+    @property
+    def rules(self):
+        return self.grammar.__rules
+
+    @property
+    def terminals(self):
+        return self.grammar.__terminals
+
+    @property
+    def templates(self):
+        return self.grammar.__terminals
+
+    @property
+    def directives(self):
+        return self.grammar.__directives
+
+    def extend(self, key, *alternatives):
+        definition = self.get_def(key)
+        definition.tokens = (Option(definition.tokens, *alternatives), )
+
+    def replace(self, key, tokens):
+        self.get_def(key).tokens = tokens
+
+    def edit(self, key, modifier=None, priority=None):
+        definition = self.get_def(key)
+        if modifier is not None:
+            definition.modifier = modifier.type
+        if priority is not None:
+            definition.priority = priority
 
 
 class Modifier:
@@ -169,6 +211,8 @@ class Token:
 class Definition(Token):
     def __init__(self, name, tokens, modifier="", priority=1):
         self.name = name
+        if not isinstance(tokens, tuple):
+            tokens = (tokens, )
         self.tokens = tokens
         self.modifier = modifier
         self.priority = priority
@@ -333,7 +377,7 @@ class SomeSeparated(Combinator):
         yield ")"
 
     def repr_children(self):
-        return "".join([repr(self.token), " (", '","', repr(self.token), ")*"])
+        return "".join([repr(self.token), " (", repr(self.sep), repr(self.token), ")*"])
 
 
 class Repeat(Token):
@@ -344,10 +388,22 @@ class Repeat(Token):
     def render(self, context):
         yield from Group(self.content).render(context)
         yield " ~ "
+        yield from self.render_range()
+
+    def render_range(self):
+        if not self.number_or_range:
+            raise ValueError("Cannot create a range of 0 occurences")
+
         if isinstance(self.number_or_range, (list, tuple)):
-            yield "..".join(map(str, self.number_or_range))
+            for n in range(len(self.number_or_range) - 1):
+                yield str(n)
+                yield ".."
+            yield str(self.number_or_range[-1])
         else:
             yield str(self.number_or_range)
+
+    def repr_children(self):
+        return "".join([repr(self.content), " ~ ", *self.render_range()])
 
 
 class Literal(Token):

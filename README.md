@@ -416,3 +416,133 @@ FLOAT.2: ( INTEGER "." ( DIGIT )* ) | ( "." ( DIGIT )+ )
 
 number: INTEGER -> integer | FLOAT -> float
 ```
+
+
+# Advanced usage
+
+`Grammar` object can be edited after its creation.
+
+First, you need to get a grammar wrapper: `wrapper = grammar.use_wrapper()`
+
+
+## Get a definition
+
+
+```python
+
+g = Grammar()
+
+
+g.HELLO = "Hello"
+
+wrapper = g.use_wrapper()
+
+print(wrapper.get_def("HELLO")) 
+
+# prints
+# RuleDef(
+#     "Hello"
+# )
+
+``` 
+
+## Replace definition contents
+
+
+```python
+
+g = Grammar()
+
+g.HELLO = "Hello"
+
+wrapper = g.use_wrapper()
+wrapper.replace("HELLO", "World")
+
+
+print(wrapper.get_def("HELLO")) 
+
+# prints
+# RuleDef(
+#     "World"
+# )
+
+``` 
+
+## Edit definition
+
+
+```python
+
+g = Grammar()
+
+g.HELLO = "Hello"
+
+wrapper = g.use_wrapper()
+wrapper.edit("HELLO", priority=10)
+
+
+print(wrapper.get_def("HELLO")) 
+
+# prints
+# RuleDef(
+#     "World"
+# )
+
+``` 
+
+## Extend definition
+
+
+```python
+
+g = Grammar()
+
+g.HELLO = "Hello"
+
+wrapper = g.use_wrapper()
+wrapper.extend("HELLO", "World")
+
+
+print(wrapper.get_def("HELLO")) 
+
+# prints
+# RuleDef(
+#     Option(
+#         "Hello"
+#         "World"
+#     )
+# )
+
+``` 
+
+## Getting all definitions / directives
+
+You can get dictionaries with rules, terminals, templates, or a list of all directives with a wrapper:
+
+```python
+
+g = Grammar()
+wrapper = g.use_wrapper()
+
+wrapper.rules
+wrapper.terminals
+wrapper.templates
+wrapper.directives
+```
+
+
+## Why a wrapper?
+
+Because grammar object itself is used to create definitions with arbitrary names. Creating methods with common names would easily create a problem:
+
+
+```python
+g = Grammar()
+
+g.edit = "EDIT", Some("blah")
+g.save = "SAVE", Some(Option("lorem", "ipsum", "dolor", "sit", "amet"))
+
+g.command = Option(g.edit, g.save) # g.edit used here as a rule, not method
+
+```
+
