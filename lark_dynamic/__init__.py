@@ -34,3 +34,5 @@ from .variable import (
     BoolVariable as BoolVariable,
     makeBoolVariable as makeBoolVariable,
 )
+
+from .definitions import Alias as Alias
