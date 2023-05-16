@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 from typing import Iterable
+
+from lark_dynamic.utils import render_all, separated, wrap
 from .constants import ContextType
 from .token import Renderable, Token
 
@@ -13,98 +15,57 @@ class Combinator(Token):
         return "\n".join(map(repr, self.children))
 
 
-class Some(Combinator):
+class PostfixCombinator(Combinator):
+    postfix: str
+
     def render(self, context: ContextType) -> Iterable[str]:
         yield from Group(*self.children).render(context)
-        yield "*"
+        yield self.postfix
 
 
-class Many(Combinator):
-    def render(self, context: ContextType) -> Iterable[str]:
-        yield from Group(*self.children).render(context)
-        yield "+"
+class Some(PostfixCombinator):
+    postfix = "*"
 
 
-class Maybe(Combinator):
-    def render(self, context: ContextType) -> Iterable[str]:
-        yield from Group(*self.children).render(context)
-        yield "?"
+class Many(PostfixCombinator):
+    postfix = "+"
+
+
+class Maybe(PostfixCombinator):
+    postfix = "?"
 
 
 class Optional(Combinator):
     def render(self, context: ContextType) -> Iterable[str]:
-        yield "["
-        yield " "
-        for child in self.children:
-            yield from Token.render_str(child, context)
-            yield " "
-        yield "]"
+        yield from wrap(
+            "[]",
+            separated(render_all(self.children, context), " "),
+        )
 
 
 class Group(Combinator):
     def render(self, context: ContextType) -> Iterable[str]:
-        yield "("
-        yield " "
-        for child in self.children:
-            yield from Token.render_str(child, context)
-            yield " "
-        yield ")"
+        yield from wrap(
+            "()",
+            separated(render_all(self.children, context), " "),
+        )
 
 
 class Option(Combinator):
     def render(self, context: ContextType) -> Iterable[str]:
-        for child in self.children[:-1]:
-            yield from Token.render_str(child, context)
-            yield " | "
-        yield from Token.render_str(self.children[-1], context)
+        yield from separated(render_all(self.children, context), " | ")
 
 
-class OptionG(Combinator):
-    def render(self, context: ContextType) -> Iterable[str]:
-        yield "("
-        for child in self.children[:-1]:
-            yield from Token.render_str(child, context)
-            yield " | "
-        yield from Token.render_str(self.children[-1], context)
-        yield ")"
+def OptionG(*children):
+    return Group(Option(*children))
 
 
-class ManySeparated(Combinator):
-    def __init__(self, sep: Renderable, token: Renderable):
-        self.sep = sep
-        self.token = token
-
-    def render(self, context: ContextType) -> Iterable[str]:
-        yield "("
-        yield " "
-        yield from Token.render_str(self.token, context)
-        yield " "
-        yield from Group(self.sep, self.token).render(context)
-        yield "+"
-        yield " "
-        yield ")"
-
-    def repr_children(self) -> str:
-        return "".join([repr(self.token), " (", '","', repr(self.token), ")*"])
+def ManySeparated(sep: Renderable, token: Renderable):
+    return Group((token, Many(sep, token)))
 
 
-class SomeSeparated(Combinator):
-    def __init__(self, sep: Renderable, token: Renderable):
-        self.sep = sep
-        self.token = token
-
-    def render(self, context: ContextType) -> Iterable[str]:
-        yield "("
-        yield " "
-        yield from Token.render_str(self.token, context)
-        yield " "
-        yield from Group(self.sep, self.token).render(context)
-        yield "*"
-        yield " "
-        yield ")"
-
-    def repr_children(self) -> str:
-        return "".join([repr(self.token), " (", repr(self.sep), repr(self.token), ")*"])
+def SomeSeparated(sep: Renderable, token: Renderable):
+    return Group((token, Some(sep, token)))
 
 
 # aliases

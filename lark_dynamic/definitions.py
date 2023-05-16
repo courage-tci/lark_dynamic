@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Iterable, Sequence
 
-from .utils import add_tab
+from .utils import add_tab, comma_separated, render_all, spaced, wrap
 from .constants import ContextType
 from .token import Renderable, Token
 from .combinators import Group
@@ -25,10 +25,9 @@ class Definition(Token):
         if self.priority != 1:
             yield "."
             yield str(self.priority)
-        yield ":"
-        for token in self.tokens:
-            yield " "
-            yield from Token.render_str(token, context)
+        yield ": "
+
+        yield from spaced(render_all(self.tokens, context))
 
     def repr_children(self) -> str:
         return "\n".join(map(repr, self.tokens))
@@ -61,7 +60,6 @@ class DirectiveDef(Definition):
 
 
 class TemplateDef(Definition):
-    # self, name: str, tokens: Renderable, modifier: str = "", priority: int = 1
     def __init__(
         self,
         name: str,
@@ -77,7 +75,6 @@ class TemplateDef(Definition):
     def render(self, context: ContextType) -> Iterable[str]:
         yield self.modifier
         yield self.name
-        yield "{"
 
         args: Sequence[Renderable]
 
@@ -88,16 +85,14 @@ class TemplateDef(Definition):
         else:
             args = (self.args,)
 
-        for arg in args[:-1]:
-            yield from Token.render_str(arg, context)
-            yield ", "
+        yield from wrap(
+            "{}",
+            comma_separated(render_all(args, context)),
+        )
 
-        yield from Token.render_str(args[-1], context)
-        yield "}:"
+        yield ": "
 
-        for token in self.tokens:
-            yield " "
-            yield from Token.render_str(token, context)
+        yield from spaced(render_all(self.tokens, context))
 
 
 class MetaAlias(type):
@@ -114,10 +109,8 @@ class Alias(Token, metaclass=MetaAlias):
         return Alias(self.name, tokens)
 
     def render(self, context: ContextType) -> Iterable[str]:
-        for token in self.tokens:
-            yield from Token.render_str(token, context)
-            yield " "
-        yield "-> "
+        yield from spaced(render_all(self.tokens, context))
+        yield " -> "
         yield self.name
 
     def __repr__(self) -> str:
