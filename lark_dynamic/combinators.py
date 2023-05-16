@@ -56,15 +56,15 @@ class Option(Combinator):
         yield from separated(render_all(self.children, context), " | ")
 
 
-def OptionG(*children):
+def OptionG(*children) -> Group:
     return Group(Option(*children))
 
 
-def ManySeparated(sep: Renderable, token: Renderable):
+def ManySeparated(sep: Renderable, token: Renderable) -> Group:
     return Group((token, Many(sep, token)))
 
 
-def SomeSeparated(sep: Renderable, token: Renderable):
+def SomeSeparated(sep: Renderable, token: Renderable) -> Group:
     return Group((token, Some(sep, token)))
 
 
