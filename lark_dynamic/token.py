@@ -1,12 +1,13 @@
 from __future__ import annotations
 from typing import Iterable, Union
-
+from codecs import getencoder
 
 from .constants import ContextType
 from .utils import add_tab
 
 
 Renderable = Union[str, "list[Renderable]", "tuple[Renderable, ...]", "Token"]
+str_encoder = getencoder("unicode_escape")
 
 
 class Token:
@@ -29,8 +30,10 @@ class Token:
         elif isinstance(token, list):
             yield from Optional(*token).render(context)
         elif isinstance(token, str):
+            str_escaped = str_encoder(token.replace('"', '\\"'))[0].decode("utf-8")
+
             yield '"'
-            yield token.replace('"', '\\"')
+            yield str_escaped
             yield '"'
         else:
             yield from token.render(context)

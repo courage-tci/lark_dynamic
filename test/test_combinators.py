@@ -41,9 +41,9 @@ class TestClass:
         many = Many("b")
         maybe = Maybe("c")
 
-        assert render_token(some) == '( "a" )*'
-        assert render_token(many) == '( "b" )+'
-        assert render_token(maybe) == '( "c" )?'
+        assert render_token(some) == '("a")*'
+        assert render_token(many) == '("b")+'
+        assert render_token(maybe) == '("c")?'
 
         str(some)
         str(many)
@@ -53,8 +53,8 @@ class TestClass:
         some = SomeSeparated(",", "a")
         many = ManySeparated(",", "b")
 
-        assert render_token(some) == '( "a" ( "," "a" )* )'
-        assert render_token(many) == '( "b" ( "," "b" )+ )'
+        assert render_token(some) == '("a" ("," "a")*)'
+        assert render_token(many) == '("b" ("," "b")+)'
 
         str(some)
         str(many)
@@ -66,18 +66,18 @@ class TestClass:
         assert (
             render_token(optional_explicit)
             == render_token(optional_literal)
-            == '[ "a" "b" ]'
+            == '["a" "b"]'
         )
 
     def test_repeat(self):
         range_ = Range(1, 4)
 
         assert render_token(range_) == "1..4"
-        assert render_token(Repeat("a", range_)) == '( "a" ) ~ 1..4'
-        assert render_token(Repeat("a", (1, 4))) == '( "a" ) ~ 1..4'
-        assert render_token(Repeat("a", [1, 4])) == '( "a" ) ~ 1..4'
-        assert render_token(Repeat("a", 4)) == '( "a" ) ~ 4'
-        assert render_token(Repeat("a", [4])) == '( "a" ) ~ 4'
+        assert render_token(Repeat("a", range_)) == '("a") ~ 1..4'
+        assert render_token(Repeat("a", (1, 4))) == '("a") ~ 1..4'
+        assert render_token(Repeat("a", [1, 4])) == '("a") ~ 1..4'
+        assert render_token(Repeat("a", 4)) == '("a") ~ 4'
+        assert render_token(Repeat("a", [4])) == '("a") ~ 4'
 
         with pytest.raises(ValueError):
             render_token(Repeat("a", 0))
@@ -90,5 +90,5 @@ class TestClass:
         group_literal = "a", "b"
 
         assert (
-            render_token(group_explicit) == render_token(group_literal) == '( "a" "b" )'
+            render_token(group_explicit) == render_token(group_literal) == '("a" "b")'
         )
