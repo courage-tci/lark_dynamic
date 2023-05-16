@@ -1,0 +1,16 @@
+[tool.poetry]
+name = "lark-dynamic"
+version = "1.1.0"
+description = "Dynamic grammar generator for Lark parsing toolkit"
+authors = ["Dmitry Gritsenko <k01419q45@ya.ru>"]
+license = "MIT"
+
+[tool.poetry.dependencies]
+python = "^3.7"
+
+[tool.poetry.dev-dependencies]
+pytest = "^7.2.0"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
