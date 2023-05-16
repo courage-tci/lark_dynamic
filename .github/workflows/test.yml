@@ -1,0 +1,78 @@
+name: Test that everything works
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - pub
+  pull_request:
+    paths:
+      - "**.py"
+
+jobs:
+  check_types:
+    runs-on: ubuntu-latest
+    name: Check Types
+    steps:
+      - name: git-checkout
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.9
+
+      - run: |
+          python -m pip install poetry
+          poetry install
+
+      - run: python -m pip install mypy
+      - run: python -m mypy lark_dynamic/ --disallow-untyped-defs --disallow-any-generics --pretty --show-error-codes --warn-unreachable
+
+      - run: python -m pip install pyright
+      - run: python -m pyright lark_dynamic/
+
+  run-tests:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.7", "3.8", "3.9", "3.10", "3.11"]
+
+    name: Run Tests
+
+    steps:
+      - name: git-checkout
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      # I couldn't get poetry install to work on CI ¯\_(ツ)_/¯
+      - run: python -m pip install pytest coverage coveralls
+
+      - name: Test
+        run: coverage run -m pytest test/
+
+  update-coverage:
+    runs-on: ubuntu-latest
+    name: Update Coverage
+
+    steps:
+      - name: git-checkout
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+
+      - run: python -m pip install pytest coverage coveralls typing-extensions
+
+      - name: Test
+        run: coverage run --include "lark_dynamic/*" -m pytest test/
+
+      - name: Coveralls update
+
+        run: coveralls --service=github
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
