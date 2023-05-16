@@ -1,9 +1,11 @@
 [tool.poetry]
 name = "lark-dynamic"
-version = "1.1.0"
+packages = [{include = "lark_dynamic"}]
+version = "1.1.1"
 description = "Dynamic grammar generator for Lark parsing toolkit"
 authors = ["Dmitry Gritsenko <k01419q45@ya.ru>"]
 license = "MIT"
+readme = "README.md"
 
 [tool.poetry.dependencies]
 python = "^3.7"
