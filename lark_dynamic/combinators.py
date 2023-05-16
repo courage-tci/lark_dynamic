@@ -56,7 +56,7 @@ class Option(Combinator):
         yield from separated(render_all(self.children, context), " | ")
 
 
-def OptionG(*children) -> Group:
+def OptionG(*children: Renderable) -> Group:
     return Group(Option(*children))
 
 
