@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from lark_dynamic.constants import ContextType
 from lark_dynamic.grammar import Grammar
 from lark_dynamic.token import Renderable, Token
