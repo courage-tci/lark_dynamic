@@ -158,7 +158,7 @@ class GrammarWrapper:
         if not definition:
             raise AttributeError(f"No definition by the name '{key}'")
 
-        definition.tokens = (Option(definition.tokens, *alternatives),)
+        definition.tokens = (Option(*definition.tokens, *alternatives),)
 
     def replace(self, key: str, tokens: Renderable) -> None:
         definition = self.get_def(key)
