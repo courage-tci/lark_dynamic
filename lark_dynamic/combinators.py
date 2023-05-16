@@ -61,11 +61,11 @@ def OptionG(*children) -> Group:
 
 
 def ManySeparated(sep: Renderable, token: Renderable) -> Group:
-    return Group((token, Many(sep, token)))
+    return Group(token, Many(sep, token))
 
 
 def SomeSeparated(sep: Renderable, token: Renderable) -> Group:
-    return Group((token, Some(sep, token)))
+    return Group(token, Some(sep, token))
 
 
 # aliases
