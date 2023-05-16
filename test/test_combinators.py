@@ -87,7 +87,7 @@ class TestClass:
 
     def test_group(self):
         group_explicit = Group("a", "b")
-        group_literal: tuple[Renderable, ...] = "a", "b"
+        group_literal = "a", "b"
 
         assert (
             render_token(group_explicit) == render_token(group_literal) == '( "a" "b" )'
