@@ -30,7 +30,7 @@ class Token:
         elif isinstance(token, list):
             yield from Optional(*token).render(context)
         elif isinstance(token, str):
-            str_escaped = str_encoder(token.replace('"', '\\"'))[0].decode("utf-8")
+            str_escaped = str_encoder(token)[0].decode("utf-8")
 
             yield '"'
             yield str_escaped
